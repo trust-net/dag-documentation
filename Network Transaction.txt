@@ -1,0 +1,16 @@
+title Network Transaction
+participant Node
+database DLT DB
+control App
+entity Network
+Network->Node:New Transaction
+note over Node: Validate anchor request\nfor sequencing rules
+note over Node: Validate anchor request\nfor shard DAG tips
+alt Locked Shard
+DLT DB-->>Node:Fetch world state
+Node -> App:Process Transaction
+note over App: * Validate signature\n* Process operations
+App --> Node: Transaction Result
+Node -->>DLT DB:Update world state
+end
+Node->Network:Broadcast transaction
