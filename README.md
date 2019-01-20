@@ -28,13 +28,25 @@ tbd
 # Rules of Engagement
 
 ## Submitter Sequencing Rule
-tbd
+* Each Transaction will have a Submitter’s ID, Submitter’s Sequence and Submitter’s Last Transaction ID
+* A shard cannot have two transactions that have same Submitter ID and Submitter Sequence
+* Submitters are responsible to provide correct Sequence and Last Submitter Transaction ID (a.k.a. Submitter Sequencing)
+* Submitter sequencing is a strictly monotonically increasing sequence and transaction history link specific to a submitter
+* Submitters can maintain a common Submitter Sequencing across all shards (simple sequencing) or can use one for each shard (sharded sequencing)
 
 ### Simple Sequencing
-tbd
+![Simple Sequencing][simple-seq]
 
 ### Sharded Sequencing
-tbd
+![Sharded Sequencing][sharded-seq]
+
+## Transaction Rules
+* A transaction will consist of an “Anchor”, “Payload” and “Signature”
+* A submitter will request an Anchor from a node that hosts a shard
+* Submitter will provide its next sequence and last transaction id as reference when requesting the Anchor
+* Node will provide a signed Anchor as proof of valid submitter request
+* Submitter will submit a transaction using node’s anchor and signed payload to the same node that issued the anchor
+* Node will validate transaction’s anchor and payload signature and process the transaction
 
 ## Resource Ownership Rule
 tbd
@@ -43,10 +55,10 @@ tbd
 tbd
 
 ## Transaction Submission
-tbd
+![Submitted Transaction Processing][submitted-tx]
 
 ## Network Transaction
-tbd
+![Network Transaction Processing][network-tx]
 
 ## Shard Sync
 tbd
@@ -56,3 +68,9 @@ tbd
 
 ## Double Spend Resolution
 tbd
+
+
+[network-tx]: https://raw.githubusercontent.com/trust-net/dag-documentation/master/images/Network%20Transaction.png "Network Transaction Processing"
+[submitted-tx]: https://raw.githubusercontent.com/trust-net/dag-documentation/master/images/Transaction%20Submission.png "Submitted Transaction Processing"
+[simple-seq]: https://raw.githubusercontent.com/trust-net/dag-documentation/master/images/SimpleSequencing.png "Simple Sequencing Example"
+[sharded-seq]: https://raw.githubusercontent.com/trust-net/dag-documentation/master/images/ShardedSequencing.png "Sharded Sequencing Example"
