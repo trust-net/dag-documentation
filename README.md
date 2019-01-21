@@ -16,6 +16,7 @@ Documentation for DAG protocol
     * [Traditional Solutions](https://github.com/trust-net/dag-documentation#Traditional-Solutions)
     * [Trust-Net DAG Solution](https://github.com/trust-net/dag-documentation#Trust-Net-DAG-Solution)
 * [DAG Protocol](https://github.com/trust-net/dag-documentation#DAG-Protocol)
+  * [Transaction Schema](https://github.com/trust-net/dag-documentation#Transaction-Schema)
   * [Transaction Submission](https://github.com/trust-net/dag-documentation#Transaction-Submission)
   * [Network Transaction](https://github.com/trust-net/dag-documentation#Network-Transaction)
   * [Shard Sync](https://github.com/trust-net/dag-documentation#Shard-Sync)
@@ -114,6 +115,9 @@ tbd
 
 # DAG protocol
 tbd
+
+## Transaction Schema
+Refer to [transaction schema documentation](https://github.com/trust-net/dag-lib-go/blob/master/docs/Transaction.md) for correct specs as per latest version of the protocol.
 
 ## Transaction Submission
 ![Submitted Transaction Processing][submitted-tx]
