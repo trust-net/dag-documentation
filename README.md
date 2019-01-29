@@ -1,11 +1,11 @@
 # dag-documentation
 Documentation for DAG protocol
 
-* [Introduction](https://github.com/trust-net/dag-documentation#Introduction)
-  * [Yet Another Protocol?](https://github.com/trust-net/dag-documentation#Yet-Another-Protocol)
-  * [DLT Stack](https://github.com/trust-net/dag-documentation#DLT-Stack)
-  * [Minimal Viable Network](https://github.com/trust-net/dag-documentation#Minimal-Viable-Network)
-* [Rules of Engagement](https://github.com/trust-net/dag-documentation#Rules-of-Engagement)
+* [Introduction](#Introduction)
+  * [Yet Another Protocol?](#Yet-Another-Protocol)
+  * [DLT Stack](#DLT-Stack)
+  * [Minimal Viable Network](#Minimal-Viable-Network)
+* [Rules of Engagement](#Rules-of-Engagement)
   * [Resource Ownership Rules](https://github.com/trust-net/dag-documentation#Resource-Ownership-Rules)
   * [Submitter Sequencing Rules](https://github.com/trust-net/dag-documentation#Submitter-Sequencing-Rules)
     * [Simple Sequencing](https://github.com/trust-net/dag-documentation#Simple-Sequencing)
@@ -39,14 +39,14 @@ This document intends to explain design philosophy and rationale behind Trust-Ne
 |Feature|TrustNet|Ethereum|
 |----|----|----|
 |*Objective*|Build DLT capability in native applications|Smart contracts based DApps|
-|*Datstructures*|Weaved DAGs|Blockchain + MPT|
+|*Datastructures*|Weaved DAGs|Canonical Chain + MPT|
 |*Transaction Orderer*|Submitter (self ordered)|Block producing node|
-|*Conensus Model*|Scope/Access constraints|PoW/PoS|
+|*Conensus Model*|Scope/Access constraints based|PoW/PoS based|
 |*Privacy Model*|Strong privacy, application level encryption|Public/non-private transactions|
 |*Application Model*|Native (full control) apps|EVM bytecode based DApp|
-|*Stack Model*|Stack as a library, application agnostic|stack as the controller for light weight apps|
+|*Stack Model*|Stack as a library, application agnostic|Stack as the controller for smart contract apps|
 
-> We are only comparing against protocols that have symmetric nodes, i.e. they do not use a "privileged" node or co-ordinator based solution for bypassing throughput limitations. Intention here is to keep the network model indepdnent of any "co-ordinator" or any other special purpose nodes that are typically used to finalize transactions on non traditional network. Such a choice results in weaker network security by limiting finalizing role to a limited number of "privileged" nodes. With Trust-Net, all nodes in the network are equally capable and have equal role in the protocol security.
+> We are only comparing against protocols that have symmetric nodes, i.e. they do not use a "privileged" node or co-ordinator based solution for bypassing throughput limitations. Intention here is to keep the network model indepdnent of any "co-ordinator" or any other special purpose nodes that are typically used to finalize transactions on non traditional network models. Such a choice results in weaker network security by limiting finalizing role to a limited number of "privileged" nodes. With Trust-Net, all nodes in the network are equally capable and have equal role in the protocol security.
 
 ## DLT Stack
 Key distinction and reasoning behind Trust-Net protocol is to invert the role of protocol in an application. Unlike the traditional blockchain protocols where stack is the controller for light weight applications, Trust-Net is designed to build DLT capability into traditional enterprise applications. This means, ability to instantiate and use DLT as a Stack into application, just like application instantiates any other protocol stack for its needs (e.g. HTTP, SIP, ...).
@@ -59,6 +59,26 @@ Due to the protocol stack as the controller for application in traditional block
 Just like a common internet (with its middle layer protocol suites) supports all different web applications with their independent security needs -- similarly "Trust-Net" is intended to be a common network for different DLT capable applications and use cases. Protocol is agnostic to applications, and hence a shared network by different applications results in "ammortization" of network security.
 
 # Rules of Engagement
+
+## Separation of Concerns
+One key philosphy behind Trust-Net's DAG protocol is to separate out an application's correctness from network security.
+
+**Q:**    Does this means consensus security (correctness) is weak in this network?   
+**A:**    True that the number of nodes at which transaction is processed is less than the total number of nodes in the network. Hence, strength of consensus security is bounded by the number of application nodes (an application node is a node that is part of the application’s shard). This limitation (consensus security == application node count) does not changes. However, our protocol separates “consensus” from “non-alterability” — which means that the strength of “non-alterability” security is based on number of network nodes, regardless of the number of application nodes. Hence, overall our network provides better security, due to added “non-alterability” to any application node.
+
+**Q:**    What is the fault-tolerance of the protocol?  
+**A:**    Let N be the number of network nodes, and let A be the number of application nodes, for an application “A” on a network “N”. Hence,
+* “non-alterability” = f(N)
+* “consensus” = f(A)
+* number of application nodes is significantly less than network nodes (i.e. A << N)
+
+Lets assume attacker has exact knowledge of those “A” application nodes, and is able to implement a 51% attack, i.e. (A/2 + 1) number of application nodes were compromised at both application and the network layer. What this means is:
+* “correctness” would be compromised (since majority of application nodes deviate from correct consensus)
+* “non-alterability” will NOT be compromised, because network will not allow transaction sequence alterations to propagate (A << N)
+* above means, network will ensure that any 51% attack will fail — because network will have “non-alterable” transaction history that can be used to challenge and refute the attack on application nodes
+* additionally, if sharding layer maintains application specific transaction history — then that history can be used to recover from the 51% attack, by simply replaying the application's transaction history from any good node
+
+> A detailed analysis of DAG protocol's properties and assumptions is described at [DAG Properties Analysis](./DAG-Properties-Analysis.md).
 
 ## Resource Ownership Rules
 * A resource is a named asset with specific owner and value, within the scope of a logical application on Trust-Net
