@@ -21,6 +21,8 @@ Documentation for DAG protocol
   * [Transaction Submission](https://github.com/trust-net/dag-documentation#Transaction-Submission)
   * [Network Transaction](https://github.com/trust-net/dag-documentation#Network-Transaction)
   * [Shard Sync](https://github.com/trust-net/dag-documentation#Shard-Sync)
+    * [Shard Parent Sync](https://github.com/trust-net/dag-documentation#Shard-Parent-Sync)
+    * [Shard Uncles Sync](https://github.com/trust-net/dag-documentation#Shard-Uncles-Sync)
   * [Submitter Sync](https://github.com/trust-net/dag-documentation#Submitter-sync)
   * [Double Spend Resolution](https://github.com/trust-net/dag-documentation#Double-Spend-Resolution)
     * [Flush or just shard sync?](https://github.com/trust-net/dag-documentation#Flush-or-just-shard-sync)
@@ -30,42 +32,47 @@ Documentation for DAG protocol
 DAG protocol is a middleware network protocol geared towards building enterprise applications with DLT capabilities.
 
 ## Yet Another Protocol?
-With "interoperability" being one of the major challenge in blockchain/DLT adoption, its only fair to question about reason for desining a new protocol. Following are some key differences between Trust-Net and Ethereum-like protocols:
+With interoperability and fragmentation of protocols being a major challenge in blockchain/DLT adoption, its only fair to question the rationale for designing a new protocol. Trust-Net's DAG protocol is designed to solve one main problem behind existing protocols -- the "Minimal Viable Network" challenge of enterprise applications.
+
+This document intends to explain design philosophy and rationale behind Trust-Net's DAG protocol, however, here are some key differences between Trust-Net and Ethereum-like protocols used for enterprise applications:
 
 |Feature|TrustNet|Ethereum|
 |----|----|----|
-|Objective|Build DLT Capability in Native Applications|Smart contracts based DApps|
-|Conensus Model|DAG|Blockchain|
-|Identity Model|Strong Public identity|Anonymous private identities|
-|Privacy Model|Strong privacy, application level encryption|Public/non-private transactions|
-|Application Model|Native (full control) apps|EVM bytecode based DApp|
-|DLT Stack Model|Stack as a library, appliction agnostic|stack as the controller for application|
-|Transaction Ordering|Submitter Driven|Network driven|
+|*Objective*|Build DLT capability in native applications|Smart contracts based DApps|
+|*Datstructures*|Weaved DAGs|Blockchain + MPT|
+|*Transaction Orderer*|Submitter (self ordered)|Block producing node|
+|*Conensus Model*|Scope/Access constraints|PoW/PoS|
+|*Identity Model*|Strong Public identity|Anonymous private identities|
+|*Privacy Model*|Strong privacy, application level encryption|Public/non-private transactions|
+|*Application Model*|Native (full control) apps|EVM bytecode based DApp|
+|*Stack Model*|Stack as a library, application agnostic|stack as the controller for application|
 
-> We are only comparing against protocols that have "public" network and do not use a coordinator based solution for bypassing throughput limitations. Intention here is to keep the network model indepdnent of any "coordinator" or any other special purpose nodes that are typically used to "finalize" transactions on non traditional network. Such a choice results in different roles for nodes w.r.t. network's security. With Trust-Net, all nodes in the network are equally capable and have equal role in the protocol security.
+> We are only comparing against protocols that have symmetric nodes, i.e. they do not use a "privileged" node or co-ordinator based solution for bypassing throughput limitations. Intention here is to keep the network model indepdnent of any "co-ordinator" or any other special purpose nodes that are typically used to finalize transactions on non traditional network. Such a choice results in weaker network security by limiting finalizing role to a limited number of "privileged" nodes. With Trust-Net, all nodes in the network are equally capable and have equal role in the protocol security.
 
 ## DLT Stack
-Key distinction and reasoning behind Trust-Net protocol is to build DLT capability into traditional enterprise applications. This means, ability to instantiate and use DLT as a Stack into application, just like application instantiates any other protocol stack for its needs (e.g. HTTP, SIP, ...).
+Key distinction and reasoning behind Trust-Net protocol is to invert the role of protocol in an application. Unlike the traditional blockchain protocols where stack is the controller for light weight applications, Trust-Net is designed to build DLT capability into traditional enterprise applications. This means, ability to instantiate and use DLT as a Stack into application, just like application instantiates any other protocol stack for its needs (e.g. HTTP, SIP, ...).
 
 ## Minimal Viable Nework
-Due to the "Application Model" and "DLT Stack Model" listed above, its not possible for network to be agnostic to application logic. Therefore, typically all enterprise applications use a private network within a consortium. This model has inherent problem of "minimal viable network" -- i.e. weaked security due to smaller network size.
+Due to the protocol stack as the controller for application in traditional blockchains, its not possible for network to be agnostic to application logic. Therefore, all typical enterprise blockchain applications use a private network within a consortium. This model has inherent problem of "minimal viable network" -- i.e. weaked security due to smaller network size.
 
-> Private/consortium networks with traditional blockchain/DLT protocols is analogous to each application/consortium building their own "internet"!!!
+> Private/consortium networks with traditional blockchain/DLT protocols are analogous to each web application building it's own "internet" from scratch!!!
 
-Just like a common internet (with its middle layer protocol suites) support all different applications with their independent security needs -- similarly "Trust-Net" protocol is intended to be common network for different applications and use cases. Protocol is agnostic to applications, and hence a shared network by different applications results in "ammortization" of network security.
+Just like a common internet (with its middle layer protocol suites) supports all different web applications with their independent security needs -- similarly "Trust-Net" is intended to be a common network for different DLT capable applications and use cases. Protocol is agnostic to applications, and hence a shared network by different applications results in "ammortization" of network security.
 
 # Rules of Engagement
 
 ## Resource Ownership Rules
-* There are 2 types of transactions defined for any application:
-  * "outgoing" transactions where some value gets transferred out from assets belonging to a network identity, and
-  * "incoming" transactions where some value gets transferred into assets belonging to a network identity.
-* Only asset owners can submit "outgoing" transactions against an asset, whereas anyone can submit an "incoming" transaction towards an asset
-* Application implementation will be responsible for "access control", i.e., making sure that an outbound value transfer (or any update in general) is only performed by eligible submitter identity
-* DLT stack will provide interface to access resources along with their ownership, however stack does not have any visibility into actual content/value for those resources
-* Resource scope would be constraints within a shard, so that a faulty application can not access and violate resources beloging to other shards
+* A resource is a named asset with specific owner and value, within the scope of a logical application on Trust-Net
+* There are 2 types of operation categories in any transaction for any application:
+  * "outgoing" operation where some value gets transferred out from resources owned by a network identity, and
+  * "incoming" operation where some value gets transferred into resources belonging to a network identity
+* In any transaction, sum of "outgoing" values must be equal to sum of "incoming" values (preservation of total value)
+* A transaction that has an "outgoing" operation against a resource can only be submitted by the resource owner
+* A transaction that has an "incoming" operation against a resource can be submit by anyone
+* An resource's value scope would be constraints within all instances of an application (a.k.a. shard), so that a faulty application can not access and violate resources beloging to other shards
+* Application implementation will be responsible for "access control", i.e., making sure that an outbound value transfer (or any update in general) is only performed by eligible resource owner
+* DLT stack will provide interface for accessing resource by the application instance, however stack does not have any visibility into actual content/value of those resources
 * DLT implies time consensus -- i.e., value of resources can change over time, however probability of them changing decreases significantly over time
-* world state is only updated on a node during transaction processing when there is an app registered. So, world state does not apply to a headless nodes, and no updates to world state after an app has deregistered (since no transaction processing callback to app)
 
 
 ## Submitter Sequencing Rules
@@ -93,7 +100,7 @@ Just like a common internet (with its middle layer protocol suites) support all 
 
 ### Background
 * Let there be a submitter with latest transaction T(N-1) known at peers P1, P2, P3 and P4
-* submitter submits double spending transactions with Seq N, lets call them T(N)-1 and T(N)-2, at peers P1 and P2
+* submitter submits double spending transactions with Seq N at peers P1 and P2, lets call these double spending transactions as T(N)-1 and T(N)-2, 
 * P1 accepts T(N)-1 as valid and broadcasts to network
 * P2 accepts T(N)-2 as valid and broadcasts to network
 * submitter submits T(N+1) on peer P1
@@ -103,16 +110,16 @@ Just like a common internet (with its middle layer protocol suites) support all 
 ### Problem Scenarios
 * P1 receives T(N)-2 from P2 (via network)
     * P1 already has a later transaction T(N+1)
-    * what does consensus protocol decides? (Stale Transaction)
+    * How does DAG protocol handle this stale n/w transaction?
 * P2 receives T(N)-1 from peer 1 (via network)
     * P2 already has another transaction for same sequence T(N)-2
-    * what does consensus protocol decides? (Duplicate Transaction)
+    * How does DAG protocol handle this duplicate n/w transaction?
 * P3 receives T(N+1) from P1 (via network)
     * P3 does not have the preceding transaction T(N)-1 from submitter
-    * what does consensus protocol decides? (Out of Seq Transaction)
+    * How does DAG protocol handle this out of seq n/w transaction?
 * P4 receives T(N+1) from P1 (via network)
     * P4 has T(N)-2 as preceding transaction, that is not parent of T(N+1)
-    * what does consensus protocol decides? (Orphan Transaction)
+    * How does DAG protocol hanlde this orphan n/w transaction?
 
 > In all of the above scenarios, rolling back a shard DAG recorded transaction is not an option (there may be other valid submitted transactions from other submitters that are descendants to contentious transaction).
 
@@ -120,7 +127,7 @@ Just like a common internet (with its middle layer protocol suites) support all 
 
 ### Traditional Solutions
 **Q:** _How does Ethereum, or any other traditional blockchain handles these scenarios?_   
-**A:** Any traditional blockchain (e.g. trust-net blockchain) can simply “switch” the world state view back and forth between blocks (canonical chain tips) and resolve above situations appropriately. However these solutions do not apply in our case (trust-net DLT) because:
+**A:** Any traditional blockchain can simply “switch” the world state view back and forth between blocks (canonical chain tips) and resolve above situations appropriately. However these solutions do not apply in our case (trust-net DLT) because:
 * transaction processing is outside the scope of DLT stack (it’s delegated to application). So, by extension, world state is also not within the scope of DLT stack!
 * we are using DAG structure to allow multiple transactions from submitters and shards to record in parallel, hence there is no canonical chain. No canonical chain means no canonical chain tip that every node can agree on and switch to!
 
@@ -148,6 +155,12 @@ Refer to [transaction schema documentation](https://github.com/trust-net/dag-lib
 ## Shard Sync
 tbd
 
+### Shard Parent Sync
+tbd
+
+### Shard Uncles Sync
+tbd
+
 ## Submitter Sync
 tbd
 
@@ -161,7 +174,7 @@ naive solution using a shard sync to resolve the situation. However, **a shard s
 Therefore, during double spending, its important that one of the nodes flush (i.e. completely discard) its shard and then sync with other node. That is the only way to guarantee that no conflicting transactions appear on the shard _and_ the world state stays consistent on both nodes. This also means some of the valid transactions from the flushing node may be lost (temporarily) if they were not on the other node. But, eventually node should sync and receive those transactions.
 
 ### Which node should flush?
-The algorithm to determine which node must flush its local shard must guarantee that same shard partition will get flushed between any two peers with same pair of double spending transactions. Therefore, using Anchor weights is not correct because different nodes (with same transaction from double spending pair) can have different anchors at different times. Therefore, we'll need to instead use the actual transactions from double spending pair themselves to decide which shard partition must get flushed. Since whichever transaction came into network first should win, we'll use the transaction with "least" weight as the winning transaction -- i.e., node that had that transaction gets to keep its shard, whereas other node needs to flush and sync.
+The algorithm to determine which node must flush its local shard must guarantee that same shard partition will get flushed between any two peers with same pair of double spending transactions. Therefore, using Anchor weights is not correct because different nodes (with same double spending transactions pair) can have different anchors at different times. Therefore, we'll need to instead use the actual transactions from double spending pair themselves to decide which shard partition must get flushed. Since whichever transaction came into network first should win, we'll use the transaction with "least" weight as the winning transaction -- i.e., node that had that transaction gets to keep its shard, whereas other node needs to flush and sync its shard.
 
 
 [network-tx]: https://raw.githubusercontent.com/trust-net/dag-documentation/master/images/Network%20Transaction.png "Network Transaction Processing"
