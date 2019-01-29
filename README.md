@@ -5,28 +5,31 @@ Documentation for DAG protocol
   * [Yet Another Protocol?](#Yet-Another-Protocol)
   * [DLT Stack](#DLT-Stack)
   * [Minimal Viable Network](#Minimal-Viable-Network)
+* [Separation of Concerns](#Separation-of-Concerns)
+  * [Correctness](#Correctness)
+  * [Fault Tolerance](#Fault-Tolerance)
 * [Rules of Engagement](#Rules-of-Engagement)
-  * [Resource Ownership Rules](https://github.com/trust-net/dag-documentation#Resource-Ownership-Rules)
-  * [Submitter Sequencing Rules](https://github.com/trust-net/dag-documentation#Submitter-Sequencing-Rules)
-    * [Simple Sequencing](https://github.com/trust-net/dag-documentation#Simple-Sequencing)
-    * [Sharded Sequencing](https://github.com/trust-net/dag-documentation#Sharded-Sequencing)
-  * [Transaction Rules](https://github.com/trust-net/dag-documentation#Transaction-Rules)
-  * [Double Spending Rules](https://github.com/trust-net/dag-documentation#Double-Spending-Rules)
-    * [Background](https://github.com/trust-net/dag-documentation#Background)
-    * [Problem Scenarios](https://github.com/trust-net/dag-documentation#Problem-Scenarios)
-    * [Traditional Solutions](https://github.com/trust-net/dag-documentation#Traditional-Solutions)
-    * [Trust-Net DAG Solution](https://github.com/trust-net/dag-documentation#Trust-Net-DAG-Solution)
-* [DAG Protocol](https://github.com/trust-net/dag-documentation#DAG-Protocol)
-  * [Transaction Schema](https://github.com/trust-net/dag-documentation#Transaction-Schema)
-  * [Transaction Submission](https://github.com/trust-net/dag-documentation#Transaction-Submission)
-  * [Network Transaction](https://github.com/trust-net/dag-documentation#Network-Transaction)
-  * [Shard Sync](https://github.com/trust-net/dag-documentation#Shard-Sync)
-    * [Shard Parent Sync](https://github.com/trust-net/dag-documentation#Shard-Parent-Sync)
-    * [Shard Uncles Sync](https://github.com/trust-net/dag-documentation#Shard-Uncles-Sync)
-  * [Submitter Sync](https://github.com/trust-net/dag-documentation#Submitter-sync)
-  * [Double Spend Resolution](https://github.com/trust-net/dag-documentation#Double-Spend-Resolution)
-    * [Flush or just shard sync?](https://github.com/trust-net/dag-documentation#Flush-or-just-shard-sync)
-    * [Which node should flush?](https://github.com/trust-net/dag-documentation#Which-node-should-flush)
+  * [Resource Ownership Rules](#Resource-Ownership-Rules)
+  * [Submitter Sequencing Rules](#Submitter-Sequencing-Rules)
+    * [Simple Sequencing](#Simple-Sequencing)
+    * [Sharded Sequencing](#Sharded-Sequencing)
+  * [Transaction Rules](#Transaction-Rules)
+  * [Double Spending Rules](#Double-Spending-Rules)
+    * [Background](#Background)
+    * [Problem Scenarios](#Problem-Scenarios)
+    * [Traditional Solutions](#Traditional-Solutions)
+    * [Trust-Net DAG Solution](#Trust-Net-DAG-Solution)
+* [DAG Protocol](#DAG-Protocol)
+  * [Transaction Schema](#Transaction-Schema)
+  * [Transaction Submission](#Transaction-Submission)
+  * [Network Transaction](#Network-Transaction)
+  * [Shard Sync](#Shard-Sync)
+    * [Shard Parent Sync](#Shard-Parent-Sync)
+    * [Shard Uncles Sync](#Shard-Uncles-Sync)
+  * [Submitter Sync](#Submitter-sync)
+  * [Double Spend Resolution](#Double-Spend-Resolution)
+    * [Flush or just shard sync?](#Flush-or-just-shard-sync)
+    * [Which node should flush?](#Which-node-should-flush)
 
 # Introduction
 DAG protocol is a middleware network protocol geared towards building enterprise applications with DLT capabilities.
@@ -58,14 +61,14 @@ Due to the protocol stack as the controller for application in traditional block
 
 Just like a common internet (with its middle layer protocol suites) supports all different web applications with their independent security needs -- similarly "Trust-Net" is intended to be a common network for different DLT capable applications and use cases. Protocol is agnostic to applications, and hence a shared network by different applications results in "ammortization" of network security.
 
-# Rules of Engagement
+# Separation of Concerns
+One key philosphy behind Trust-Net's DAG protocol is to separate out an application's correctness from network security. Since network is application agnostic, not all nodes in the network process an application's transaction. Only the nodes where an application's instance is registered will be the one where application's transaction will be processed (and hence correctness of those transaction established). However, independent of the transaction processing, all nodes in the network participate on network security ("fault tolerance") by validating transaction ordering, non-alterability and ownership.
 
-## Separation of Concerns
-One key philosphy behind Trust-Net's DAG protocol is to separate out an application's correctness from network security.
-
+## Correctness
 **Q:**    Does this means consensus security (correctness) is weak in this network?   
 **A:**    True that the number of nodes at which transaction is processed is less than the total number of nodes in the network. Hence, strength of consensus security is bounded by the number of application nodes (an application node is a node that is part of the application’s shard). This limitation (consensus security == application node count) does not changes. However, our protocol separates “consensus” from “non-alterability” — which means that the strength of “non-alterability” security is based on number of network nodes, regardless of the number of application nodes. Hence, overall our network provides better security, due to added “non-alterability” to any application node.
 
+## Fault Tolerance
 **Q:**    What is the fault-tolerance of the protocol?  
 **A:**    Let N be the number of network nodes, and let A be the number of application nodes, for an application “A” on a network “N”. Hence,
 * “non-alterability” = f(N)
@@ -78,7 +81,9 @@ Lets assume attacker has exact knowledge of those “A” application nodes, and
 * above means, network will ensure that any 51% attack will fail — because network will have “non-alterable” transaction history that can be used to challenge and refute the attack on application nodes
 * additionally, if sharding layer maintains application specific transaction history — then that history can be used to recover from the 51% attack, by simply replaying the application's transaction history from any good node
 
-> A detailed analysis of DAG protocol's properties and assumptions is described at [DAG Properties Analysis](./DAG-Properties-Analysis.md).
+> A detailed analysis of DAG protocol's properties and assumptions is described at [DAG Properties Analysis](./DAG-Properties-Analysis.md#Properties).
+
+# Rules of Engagement
 
 ## Resource Ownership Rules
 * A resource is a named asset with specific owner and value, within the scope of a logical application on Trust-Net
