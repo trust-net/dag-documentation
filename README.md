@@ -34,7 +34,7 @@ DAG protocol is a middleware network protocol geared towards building enterprise
 ## Yet Another Protocol?
 With interoperability and fragmentation of protocols being a major challenge in blockchain/DLT adoption, its only fair to question the rationale for designing a new protocol. Trust-Net's DAG protocol is designed to solve one main problem behind existing protocols -- the "Minimal Viable Network" challenge of enterprise applications.
 
-This document intends to explain design philosophy and rationale behind Trust-Net's DAG protocol, however, here are some key differences between Trust-Net and Ethereum-like protocols used for enterprise applications:
+This document intends to explain design philosophy and rationale behind Trust-Net's DAG protocol. However, to summarize, here are some key differences between Trust-Net and Ethereum-like protocols used for enterprise applications:
 
 |Feature|TrustNet|Ethereum|
 |----|----|----|
@@ -42,17 +42,16 @@ This document intends to explain design philosophy and rationale behind Trust-Ne
 |*Datstructures*|Weaved DAGs|Blockchain + MPT|
 |*Transaction Orderer*|Submitter (self ordered)|Block producing node|
 |*Conensus Model*|Scope/Access constraints|PoW/PoS|
-|*Identity Model*|Strong Public identity|Anonymous private identities|
 |*Privacy Model*|Strong privacy, application level encryption|Public/non-private transactions|
 |*Application Model*|Native (full control) apps|EVM bytecode based DApp|
-|*Stack Model*|Stack as a library, application agnostic|stack as the controller for application|
+|*Stack Model*|Stack as a library, application agnostic|stack as the controller for light weight apps|
 
 > We are only comparing against protocols that have symmetric nodes, i.e. they do not use a "privileged" node or co-ordinator based solution for bypassing throughput limitations. Intention here is to keep the network model indepdnent of any "co-ordinator" or any other special purpose nodes that are typically used to finalize transactions on non traditional network. Such a choice results in weaker network security by limiting finalizing role to a limited number of "privileged" nodes. With Trust-Net, all nodes in the network are equally capable and have equal role in the protocol security.
 
 ## DLT Stack
 Key distinction and reasoning behind Trust-Net protocol is to invert the role of protocol in an application. Unlike the traditional blockchain protocols where stack is the controller for light weight applications, Trust-Net is designed to build DLT capability into traditional enterprise applications. This means, ability to instantiate and use DLT as a Stack into application, just like application instantiates any other protocol stack for its needs (e.g. HTTP, SIP, ...).
 
-## Minimal Viable Nework
+## Minimal Viable Network
 Due to the protocol stack as the controller for application in traditional blockchains, its not possible for network to be agnostic to application logic. Therefore, all typical enterprise blockchain applications use a private network within a consortium. This model has inherent problem of "minimal viable network" -- i.e. weaked security due to smaller network size.
 
 > Private/consortium networks with traditional blockchain/DLT protocols are analogous to each web application building it's own "internet" from scratch!!!
@@ -71,7 +70,7 @@ Just like a common internet (with its middle layer protocol suites) supports all
 * A transaction that has an "incoming" operation against a resource can be submit by anyone
 * An resource's value scope would be constraints within all instances of an application (a.k.a. shard), so that a faulty application can not access and violate resources beloging to other shards
 * Application implementation will be responsible for "access control", i.e., making sure that an outbound value transfer (or any update in general) is only performed by eligible resource owner
-* DLT stack will provide interface for accessing resource by the application instance, however stack does not have any visibility into actual content/value of those resources
+* DLT stack will provide interface for accessing resources visible withing the application scope, however stack does not have any visibility into actual content/value of those resources
 * DLT implies time consensus -- i.e., value of resources can change over time, however probability of them changing decreases significantly over time
 
 
@@ -144,7 +143,7 @@ Just like a common internet (with its middle layer protocol suites) supports all
 tbd
 
 ## Transaction Schema
-Refer to [transaction schema documentation](https://github.com/trust-net/dag-lib-go/blob/master/docs/Transaction.md) for correct specs as per latest version of the protocol.
+Refer to [transaction schema documentation](https://github.com/trust-net/dag-lib-go/blob/master/docs/Transaction.md#Contents) for correct specs as per latest version of the protocol.
 
 ## Transaction Submission
 ![Submitted Transaction Processing][submitted-tx]
