@@ -2,6 +2,7 @@
 Documentation for DAG protocol
 
 * [Introduction](https://github.com/trust-net/dag-documentation#Introduction)
+  * [Yet Another Protocol?](https://github.com/trust-net/dag-documentation#Yet-Another-Protocol)
   * [DLT Stack](https://github.com/trust-net/dag-documentation#DLT-Stack)
   * [Minimal Viable Network](https://github.com/trust-net/dag-documentation#Minimal-Viable-Network)
 * [Rules of Engagement](https://github.com/trust-net/dag-documentation#Rules-of-Engagement)
@@ -26,13 +27,32 @@ Documentation for DAG protocol
     * [Which node should flush?](https://github.com/trust-net/dag-documentation#Which-node-should-flush)
 
 # Introduction
-tbd
+DAG protocol is a middleware network protocol geared towards building enterprise applications with DLT capabilities.
+
+## Yet Another Protocol?
+With "interoperability" being one of the major challenge in blockchain/DLT adoption, its only fair to question about reason for desining a new protocol. Following are some key differences between Trust-Net and Ethereum-like protocols:
+
+|Feature|TrustNet|Ethereum|
+|----|----|----|
+|Objective|Build DLT Capability in Native Applications|Smart contracts based DApps|
+|Conensus Model|DAG|Blockchain|
+|Identity Model|Strong Public identity|Anonymous private identities|
+|Privacy Model|Strong privacy, application level encryption|Public/non-private transactions|
+|Application Model|Native (full control) apps|EVM bytecode based DApp|
+|DLT Stack Model|Stack as a library, appliction agnostic|stack as the controller for application|
+|Transaction Ordering|Submitter Driven|Network driven|
+
+> We are only comparing against protocols that have "public" network and do not use a coordinator based solution for bypassing throughput limitations. Intention here is to keep the network model indepdnent of any "coordinator" or any other special purpose nodes that are typically used to "finalize" transactions on non traditional network. Such a choice results in different roles for nodes w.r.t. network's security. With Trust-Net, all nodes in the network are equally capable and have equal role in the protocol security.
 
 ## DLT Stack
-tbd
+Key distinction and reasoning behind Trust-Net protocol is to build DLT capability into traditional enterprise applications. This means, ability to instantiate and use DLT as a Stack into application, just like application instantiates any other protocol stack for its needs (e.g. HTTP, SIP, ...).
 
 ## Minimal Viable Nework
-tbd
+Due to the "Application Model" and "DLT Stack Model" listed above, its not possible for network to be agnostic to application logic. Therefore, typically all enterprise applications use a private network within a consortium. This model has inherent problem of "minimal viable network" -- i.e. weaked security due to smaller network size.
+
+> Private/consortium networks with traditional blockchain/DLT protocols is analogous to each application/consortium building their own "internet"!!!
+
+Just like a common internet (with its middle layer protocol suites) support all different applications with their independent security needs -- similarly "Trust-Net" protocol is intended to be common network for different applications and use cases. Protocol is agnostic to applications, and hence a shared network by different applications results in "ammortization" of network security.
 
 # Rules of Engagement
 
