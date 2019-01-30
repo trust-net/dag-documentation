@@ -23,6 +23,7 @@ Documentation for DAG protocol
   * [Transaction Schema](#Transaction-Schema)
   * [Transaction Submission](#Transaction-Submission)
   * [Network Transaction](#Network-Transaction)
+  * [Headless Node](#Headless-Node)
   * [Shard Sync](#Shard-Sync)
     * [Shard Parent Sync](#Shard-Parent-Sync)
     * [Shard Uncles Sync](#Shard-Uncles-Sync)
@@ -182,6 +183,10 @@ Refer to [transaction schema documentation](https://github.com/trust-net/dag-lib
 ## Network Transaction
 ![Network Transaction Processing][network-tx]
 
+## Headless Node
+A headless node is one that does not have any shard registered/hosted. Also, transactions that do not belong to the registered/hosted shard are also handled like a headless node.
+![Headless Transaction Processing][headless-tx]
+
 ## Shard Sync
 tbd
 
@@ -207,6 +212,7 @@ Therefore, during double spending, its important that one of the nodes flush (i.
 The algorithm to determine which node must flush its local shard must guarantee that same shard partition will get flushed between any two peers with same pair of double spending transactions. Therefore, using Anchor weights is not correct because different nodes (with same double spending transactions pair) can have different anchors at different times. Therefore, we'll need to instead use the actual transactions from double spending pair themselves to decide which shard partition must get flushed. Since whichever transaction came into network first should win, we'll use the transaction with "least" weight as the winning transaction -- i.e., node that had that transaction gets to keep its shard, whereas other node needs to flush and sync its shard.
 
 
+[headless-tx]: https://raw.githubusercontent.com/trust-net/dag-documentation/master/images/Headless%20Node.png "Headless Transaction Processing"
 [network-tx]: https://raw.githubusercontent.com/trust-net/dag-documentation/master/images/Network%20Transaction.png "Network Transaction Processing"
 [submitted-tx]: https://raw.githubusercontent.com/trust-net/dag-documentation/master/images/Transaction%20Submission.png "Submitted Transaction Processing"
 [simple-seq]: https://raw.githubusercontent.com/trust-net/dag-documentation/master/images/SimpleSequencing.png "Simple Sequencing Example"

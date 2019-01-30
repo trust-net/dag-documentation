@@ -3,14 +3,17 @@ participant Node
 database DLT DB
 control App
 entity Network
-Network->Node:New Transaction
-note over Node: Validate anchor request\nfor sequencing rules
-note over Node: Validate anchor request\nfor shard DAG tips
+Network->Node:New transaction
+Node<<--DLT DB:Fetch submitter history
+note over Node: Validate transaction\nfor sequencing rules
+Node<<--DLT DB:Fetch DAG history
+note over Node: Validate anchor with\n shard's DAG history
 alt Locked Shard
 DLT DB-->>Node:Fetch world state
-Node -> App:Process Transaction
-note over App: * Validate signature\n* Process operations
-App --> Node: Transaction Result
+Node -> App:Process transaction
+note over App: * Validate resource access\n* Process operations\n* change world state
+App --> Node: Transaction result
+Node -->>DLT DB:Update submitter history
 Node -->>DLT DB:Update world state
 end
 Node->Network:Broadcast transaction

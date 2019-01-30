@@ -1,0 +1,10 @@
+title Headless Node
+participant Node
+database DLT DB
+entity Network
+Network->Node:New transaction
+Node<<--DLT DB:Fetch submitter history
+note over Node: Validate transaction\nfor sequencing rules
+Node<<--DLT DB:Fetch DAG history
+note over Node: Validate anchor with\n shard's DAG history
+Node->Network:Broadcast transaction

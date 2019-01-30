@@ -7,15 +7,17 @@ entity Network
 note over Submitter: Create tx request\n* add payload\n* add last tx\n* add sequence\n* sign tx request
 Submitter->Node:Submit Transaction
 alt Locked Shard
+Node<<--DLT DB:Fetch submitter history
 note over Node: Validate tx request\nfor sequencing rules
-Node<<-->>DLT DB:Fetch DAG tips
+Node<<--DLT DB:Fetch DAG tips
 note over Node: Create an anchor using\nshard's DAG tips and sign
-Node<<-->>DLT DB:Fetch world state
-Node -> App:Process Transaction
-note over App: * Validate resource access\n* Process operations
-App --> Node: Transaction Result
+Node<<--DLT DB:Fetch world state
+Node -> App:Process transaction
+note over App: * Validate resource access\n* Process operations\n* change world state
+App --> Node: Transaction result
+Node -->>DLT DB:Update submitter history
 Node -->>DLT DB:Update world state
 end
-Node-->Submitter:Transaction Result
+Node-->Submitter:Transaction result
 Node->Network:Broadcast transaction
 note over Submitter:* update last tx ID\n* update next tx seq
