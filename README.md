@@ -185,6 +185,7 @@ Refer to [transaction schema documentation](https://github.com/trust-net/dag-lib
 
 ## Headless Node
 A headless node is one that does not have any shard registered/hosted. Also, transactions that do not belong to the registered/hosted shard are also handled like a headless node.
+
 ![Headless Transaction Processing][headless-tx]
 
 ## Shard Sync
