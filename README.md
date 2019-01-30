@@ -44,7 +44,7 @@ This document intends to explain design philosophy and rationale behind Trust-Ne
 |*Objective*|Build DLT capability in native applications|Smart contracts based DApps|
 |*Datastructures*|Weaved DAGs|Canonical Chain + MPT|
 |*Transaction Orderer*|Submitter (self ordered)|Block producing node|
-|*Conensus Model*|Scope/Access constraints based|PoW/PoS based|
+|*Consensus Model*|Scope/Access constraints based|PoW/PoS based|
 |*Incentive Model*|Ammortization|Economic|
 |*Privacy Model*|Strong privacy, application level encryption|Public/non-private transactions|
 |*Application Model*|Native (full control) apps|EVM bytecode based DApp|
@@ -94,7 +94,7 @@ Lets assume attacker has exact knowledge of those “A” application nodes, and
 * In any transaction, sum of "outgoing" values must be equal to sum of "incoming" values (preservation of total value)
 * A transaction that has an "outgoing" operation against a resource can only be submitted by the resource owner
 * A transaction that has an "incoming" operation against a resource can be submit by anyone
-* A resource's scope would be limited to an individual shard (i.e. all instances of an application), so that a faulty implementation of an application can not access and violate resources beloging to other shards
+* A resource's scope would be limited to an individual shard (i.e. all instances of an application), so that a faulty implementation of an application can not access and violate resources belonging to other shards
 * Application implementation will be responsible for "access control", i.e., making sure that an outbound value transfer (or any update in general) is only performed by eligible resource owner
 * DLT stack will provide interface for accessing resources in the application's scope, however stack does not have any visibility into actual content/value of those resources
 * DLT implies time consensus -- i.e., value of resources can change over time -- however, probability of them changing decreases significantly over time
