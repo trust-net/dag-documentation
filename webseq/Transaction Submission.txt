@@ -4,19 +4,18 @@ participant Node
 database DLT DB
 control App
 entity Network
-Submitter->Node:Request Anchor
-note over Node: Validate anchor request\nfor sequencing rules
-DLT DB-->Node:Fetch DAG tips
-note over Node: Create an anchor using\nshard's DAG tips and sign
-Submitter<--Node: Anchor Response
-note over Submitter: Create transaction\n* add payload\n* sign payload\n* add anchor
+note over Submitter: Create tx request\n* add payload\n* add last tx\n* add sequence\n* sign tx request
 Submitter->Node:Submit Transaction
 alt Locked Shard
-DLT DB-->>Node:Fetch world state
+note over Node: Validate tx request\nfor sequencing rules
+Node<<-->>DLT DB:Fetch DAG tips
+note over Node: Create an anchor using\nshard's DAG tips and sign
+Node<<-->>DLT DB:Fetch world state
 Node -> App:Process Transaction
-note over App: * Validate signature\n* Process operations
+note over App: * Validate resource access\n* Process operations
 App --> Node: Transaction Result
 Node -->>DLT DB:Update world state
 end
-Node->Network:Broadcast transaction
 Node-->Submitter:Transaction Result
+Node->Network:Broadcast transaction
+note over Submitter:* update last tx ID\n* update next tx seq
