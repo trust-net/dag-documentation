@@ -45,11 +45,12 @@ This document intends to explain design philosophy and rationale behind Trust-Ne
 |*Datastructures*|Weaved DAGs|Canonical Chain + MPT|
 |*Transaction Orderer*|Submitter (self ordered)|Block producing node|
 |*Conensus Model*|Scope/Access constraints based|PoW/PoS based|
+|*Incentive Model*|Ammortization|Economic|
 |*Privacy Model*|Strong privacy, application level encryption|Public/non-private transactions|
 |*Application Model*|Native (full control) apps|EVM bytecode based DApp|
 |*Stack Model*|Stack as a library, application agnostic|Stack as the controller for smart contract apps|
 
-> We are only comparing against protocols that have symmetric nodes, i.e. they do not use a "privileged" node or co-ordinator based solution for bypassing throughput limitations. Intention here is to keep the network model indepdnent of any "co-ordinator" or any other special purpose nodes that are typically used to finalize transactions on non traditional network models. Such a choice results in weaker network security by limiting finalizing role to a limited number of "privileged" nodes. With Trust-Net, all nodes in the network are equally capable and have equal role in the protocol security.
+> We are only comparing against protocols that have symmetric nodes, i.e. they do not use a "privileged" node or co-ordinator based solution for bypassing throughput limitations. Intention here is to keep the network model independent of any "co-ordinator" or any other special purpose nodes that are typically used to finalize transactions on non traditional network models. Such a choice results in weaker network security by limiting finalizingßrole to a limited number of "privileged" nodes. With Trust-Net, all nodes in the network are equally capable and have equal role in the protocol security.
 
 ## DLT Stack
 Key distinction and reasoning behind Trust-Net protocol is to invert the role of protocol in an application. Unlike the traditional blockchain protocols where stack is the controller for light weight applications, Trust-Net is designed to build DLT capability into traditional enterprise applications. This means, ability to instantiate and use DLT as a Stack into application, just like application instantiates any other protocol stack for its needs (e.g. HTTP, SIP, ...).
@@ -93,18 +94,18 @@ Lets assume attacker has exact knowledge of those “A” application nodes, and
 * In any transaction, sum of "outgoing" values must be equal to sum of "incoming" values (preservation of total value)
 * A transaction that has an "outgoing" operation against a resource can only be submitted by the resource owner
 * A transaction that has an "incoming" operation against a resource can be submit by anyone
-* An resource's value scope would be constraints within all instances of an application (a.k.a. shard), so that a faulty application can not access and violate resources beloging to other shards
+* A resource's scope would be limited to an individual shard (i.e. all instances of an application), so that a faulty implementation of an application can not access and violate resources beloging to other shards
 * Application implementation will be responsible for "access control", i.e., making sure that an outbound value transfer (or any update in general) is only performed by eligible resource owner
-* DLT stack will provide interface for accessing resources visible withing the application scope, however stack does not have any visibility into actual content/value of those resources
-* DLT implies time consensus -- i.e., value of resources can change over time, however probability of them changing decreases significantly over time
+* DLT stack will provide interface for accessing resources in the application's scope, however stack does not have any visibility into actual content/value of those resources
+* DLT implies time consensus -- i.e., value of resources can change over time -- however, probability of them changing decreases significantly over time
 
 
 ## Submitter Sequencing Rules
-* Each Transaction will have a Submitter’s ID, Submitter’s Sequence and Submitter’s Last Transaction ID
-* A shard cannot have two transactions that have same Submitter ID and Submitter Sequence
-* Submitters are responsible to provide correct Sequence and Last Submitter Transaction ID (a.k.a. Submitter Sequencing)
-* Submitter sequencing is a strictly monotonically increasing sequence and transaction history link specific to a submitter
-* Submitters can maintain a common Submitter Sequencing across all shards (simple sequencing) or can use one for each shard (sharded sequencing)
+* Each Transaction will have a Submitter’s ID, Submitter’s Current Sequence and Submitter’s Last Transaction ID (a.k.a. Submitter Sequence)
+* Submitters are responsible for tracking and providing correct values for submitter's last transaction ID and current transaction sequence
+* Submitter sequencing is a strictly monotonically increasing sequence and submitter's last transaction ID links to a transaction history specific to the submitter
+* A shard cannot have two transactions from same Submitter with same value for Submitter's Sequence
+* Submitters can maintain a common Submitter Sequencing across all shards (simple sequencing) or can use separate one for each shard (sharded sequencing)
 
 ### Simple Sequencing
 ![Simple Sequencing][simple-seq]
@@ -114,9 +115,9 @@ Lets assume attacker has exact knowledge of those “A” application nodes, and
 
 ## Transaction Rules
 * A transaction will consist of an “Anchor”, “Payload” and “Signature”
-* A submitter will request an Anchor from a node that hosts a shard
+* A submitter will request an Anchor from a node that hosts a shard for which transaction is intended
 * Submitter will provide its next sequence and last transaction id as reference when requesting the Anchor
-* Node will provide a signed Anchor as proof of valid submitter request
+* Shard hosting node will provide a signed Anchor as proof of valid submitter request
 * Submitter will submit a transaction using node’s anchor and signed payload to the same node that issued the anchor
 * Node will validate transaction’s anchor and payload signature and process the transaction
 
@@ -159,10 +160,15 @@ Lets assume attacker has exact knowledge of those “A” application nodes, and
 **Q:** _What are some of the assumptions and facts that can help with solution?_   
 **A:** Following facts and assumptions exist in trust-net DAG model:
 * each submitter is required to keep track of its latest transaction sequence and transaction hash
-* if there are 2 different transactions with same submitter sequence — then this is evidence of intentional double spending by the submitter!
-* submitter identities are global and shared at the platform level across all apps/shards
-* asset values owned by transaction submitters are application/shard specific
+* there cannot be two transaction's from same submitter with same transaction sequence within a shard
+* when a new Anchor is issued for a transaction, it coalesces all the tips of shard's DAG, effectively making all transactions processed so far by the shard as ancestor
+* any transaction that uses an "incoming" value from a previous transaction is also a descendent of that transaction in the shard's DAG (by virtue of shard's tips coalescing)
+* only the resource owner can submit a transaction with "outgoing" operation for that resource
 
+With above constraints, DAG protocol gaurantees that:
+* all transactions that depend on an "incoming" operation from a previous transaction will only be processed after its ancestors have been processed (see [Issue #47](https://github.com/trust-net/dag-lib-go/issues/47) and [Issue #51](https://github.com/trust-net/dag-lib-go/issues/51))
+* all transactions with an "outgoing" operation that deducts value from a resource are processed in same sequential order across all application nodes in the network (by virtue of resource ownership and submitter sequencing rules)
+* if there are 2 different transactions with same submitter sequence — then this is evidence of intentional double spending by the submitter and will be rejected by all honest application nodes
 
 # DAG protocol
 tbd
