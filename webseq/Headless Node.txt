@@ -7,4 +7,6 @@ Node<<--DLT DB:Fetch submitter history
 note over Node: Validate transaction\nfor sequencing rules
 Node<<--DLT DB:Fetch DAG history
 note over Node: Validate anchor with\n shard's DAG history
+Node -->>DLT DB:Update submitter history
+Node -->>DLT DB:Update shard DAG
 Node->Network:Broadcast transaction
