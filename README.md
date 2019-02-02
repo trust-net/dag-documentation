@@ -10,10 +10,10 @@ Documentation for DAG protocol
   * [Fault Tolerance](#Fault-Tolerance)
 * [Rules of Engagement](#Rules-of-Engagement)
   * [Resource Ownership Rules](#Resource-Ownership-Rules)
+  * [Value Transfer Rules](#Value-Transfer-Rules)
   * [Submitter Sequencing Rules](#Submitter-Sequencing-Rules)
     * [Simple Sequencing](#Simple-Sequencing)
     * [Sharded Sequencing](#Sharded-Sequencing)
-  * [Transaction Rules](#Transaction-Rules)
   * [Double Spending Rules](#Double-Spending-Rules)
     * [Background](#Background)
     * [Problem Scenarios](#Problem-Scenarios)
@@ -33,28 +33,28 @@ Documentation for DAG protocol
     * [Which node should flush?](#Which-node-should-flush)
 
 # Introduction
-DAG protocol is a middleware network protocol geared towards building enterprise applications with DLT capabilities.
+DAG protocol is a middleware network protocol geared towards building "on-demand" private enterprise applications with DLT capabilities over a shared public network.
 
 ## Yet Another Protocol?
 With interoperability and fragmentation of protocols being a major challenge in blockchain/DLT adoption, its only fair to question the rationale for designing a new protocol. Trust-Net's DAG protocol is designed to solve one main problem behind existing protocols -- the "Minimal Viable Network" challenge of enterprise applications.
 
-This document intends to explain design philosophy and rationale behind Trust-Net's DAG protocol. However, to summarize, here are some key differences between Trust-Net and Ethereum-like protocols used for enterprise applications:
+This document intends to explain design philosophy and rationale behind Trust-Net's DAG protocol in detail. However, to summarize, here are some key differences between Trust-Net and Ethereum-like protocols used for enterprise DLT applications:
 
 |Feature|TrustNet|Ethereum|
 |----|----|----|
-|*Objective*|Build DLT capability in native applications|Smart contracts based DApps|
-|*Datastructures*|Weaved DAGs|Canonical Chain + MPT|
+|*Objective*|DLT capability in native applications|Smart contracts based DApps|
 |*Transaction Orderer*|Submitter (self ordered)|Block producing node|
 |*Consensus Model*|Scope/Access constraints based|PoW/PoS based|
 |*Incentive Model*|Ammortization|Economic|
-|*Privacy Model*|Strong privacy, application level encryption|Public/non-private transactions|
-|*Application Model*|Native (full control) apps|EVM bytecode based DApp|
+|*Privacy Model*|Transaction privacy, application level encryption|Public/non-private transactions|
+|*Application Model*|DLT capable full stack applications|EVM bytecode based shared smart contracts|
 |*Stack Model*|Stack as a library, application agnostic|Stack as the controller for smart contract apps|
+|*Network Model*|Multi-tenant shared public network|Private/closed network for each application|
 
 > We are only comparing against protocols that have symmetric nodes, i.e. they do not use a "privileged" node or co-ordinator based solution for bypassing throughput limitations. Intention here is to keep the network model independent of any "co-ordinator" or any other special purpose nodes that are typically used to finalize transactions on non traditional network models. Such a choice results in weaker network security by assigning critical role to a limited number of "privileged" nodes. With Trust-Net, all nodes in the network are equally capable and have equal role in the protocol security.
 
 ## DLT Stack
-Key distinction and reasoning behind Trust-Net protocol is to invert the role of protocol in an application. Unlike the traditional blockchain protocols where stack is the controller for light weight applications, Trust-Net is designed to build DLT capability into traditional enterprise applications. This means, ability to instantiate and use DLT as a Stack into application, just like application instantiates any other protocol stack for its needs (e.g. HTTP, SIP, ...).
+The intuition behind Trust-Net protocol is to invert the role of protocol in DLT applications. Unlike the traditional blockchain protocols where stack is the controller for light weight applications, Trust-Net is designed to build DLT capability into traditional enterprise applications. This means, ability to instantiate and use DLT as a Stack into application, just like application instantiates any other protocol stack for its needs (e.g. HTTP, SIP, ...).
 
 ## Minimal Viable Network
 Due to the protocol stack as the controller for application in traditional blockchains, its not possible for network to be agnostic to application logic. Therefore, all typical enterprise blockchain applications use a private network within a consortium. This model has inherent problem of "minimal viable network" -- i.e. weaked security due to smaller network size.
@@ -86,19 +86,21 @@ Lets assume attacker has exact knowledge of those “A” application nodes, and
 > A detailed analysis of DAG protocol's properties and assumptions is described at [DAG Properties Analysis](./DAG-Properties-Analysis.md#Properties).
 
 # Rules of Engagement
+Reason it is possible to build on-demand private DLT applications over a shared multi-tenant public network is due to DAG protocol's rules of engagement and constraints as below...
 
 ## Resource Ownership Rules
 * A resource is a named asset with specific owner and value, within the scope of a logical application on Trust-Net
+* A resource's scope would be limited to an individual shard (i.e. all instances of an application), so that a faulty implementation of an application can not access and violate resources belonging to other shards
+* DLT stack will provide interface for accessing resources in the application's scope, however stack does not have any visibility into actual content/value of those resources
+* DLT implies time consensus -- i.e., value of resources can change over time -- however, probability of them changing decreases significantly over time
+
+## Value Transfer Rules
 * There are 2 types of operation categories in any transaction for any application:
   * "outgoing" operation where some value gets transferred out from resources owned by a network identity, and
   * "incoming" operation where some value gets transferred into resources belonging to a network identity
-* In any transaction, sum of "outgoing" values must be equal to sum of "incoming" values (preservation of total value)
 * A transaction that has an "outgoing" operation against a resource can only be submitted by the resource owner
 * A transaction that has an "incoming" operation against a resource can be submit by anyone
-* A resource's scope would be limited to an individual shard (i.e. all instances of an application), so that a faulty implementation of an application can not access and violate resources belonging to other shards
-* Application implementation will be responsible for "access control", i.e., making sure that an outbound value transfer (or any update in general) is only performed by eligible resource owner
-* DLT stack will provide interface for accessing resources in the application's scope, however stack does not have any visibility into actual content/value of those resources
-* DLT implies time consensus -- i.e., value of resources can change over time -- however, probability of them changing decreases significantly over time
+* Application implementation will be responsible for "correctness" (i.e. value transfer validation) and "access control", (i.e., outbound value transfer is only performed by eligible resource owner)
 
 
 ## Submitter Sequencing Rules
@@ -113,14 +115,6 @@ Lets assume attacker has exact knowledge of those “A” application nodes, and
 
 ### Sharded Sequencing
 ![Sharded Sequencing][sharded-seq]
-
-## Transaction Rules
-* A transaction will consist of an “Anchor”, “Payload” and “Signature”
-* A submitter will request an Anchor from a node that hosts a shard for which transaction is intended
-* Submitter will provide its next sequence and last transaction id as reference when requesting the Anchor
-* Shard hosting node will provide a signed Anchor as proof of valid submitter request
-* Submitter will submit a transaction using node’s anchor and signed payload to the same node that issued the anchor
-* Node will validate transaction’s anchor and payload signature and process the transaction
 
 ## Double Spending Rules
 
