@@ -43,8 +43,7 @@ This document intends to explain design philosophy and rationale behind Trust-Ne
 |Feature|TrustNet|Ethereum|
 |----|----|----|
 |*Objective*|DLT capability in native applications|Smart contracts based DApps|
-|*Transaction Orderer*|Submitter (self ordered)|Block producing node|
-|*Consensus Model*|Scope/Access constraints based|PoW/PoS based|
+|*Consensus Model*|DAG based ordering|PoW/PoS based ordering|
 |*Incentive Model*|Ammortization|Economic|
 |*Privacy Model*|Transaction privacy, application level encryption|Public/non-private transactions|
 |*Application Model*|DLT capable full stack applications|EVM bytecode based shared smart contracts|
